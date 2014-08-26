@@ -1,8 +1,8 @@
-﻿using Android.Content;
+﻿using System;
+using Android.Content;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using System;
 
 namespace Toggl.Joey.UI.Views
 {
@@ -25,13 +25,13 @@ namespace Toggl.Joey.UI.Views
 
         public LogTimeEntryItem (Context context, IAttributeSet attrs) : base (context, attrs)
         {
-            view = LayoutInflater.FromContext (context).Inflate (Resource.Layout.LogTimeEntryItem, this, true);
+            view = LayoutInflater.FromContext (context).Inflate (Resource.Layout.LogTimeEntryListItem, this, true);
             Initialize ();
         }
 
         public LogTimeEntryItem (Context context, IAttributeSet attrs, int defStyle) : base (context, attrs, defStyle)
         {
-            view = LayoutInflater.FromContext (context).Inflate (Resource.Layout.LogTimeEntryItem, this, true);
+            view = LayoutInflater.FromContext (context).Inflate (Resource.Layout.LogTimeEntryListItem, this, true);
             Initialize ();
         }
 
@@ -89,7 +89,7 @@ namespace Toggl.Joey.UI.Views
             int durationBar = r - continueImageButton.MeasuredWidth;
             layoutView (continueButtonSeparator, durationBar + 6, currentTop, continueButtonSeparator.MeasuredWidth, continueButtonSeparator.MeasuredHeight);
             layoutView (continueImageButton, durationBar, currentTop, continueImageButton.MeasuredWidth, continueImageButton.MeasuredHeight);
-            int secondLineMark = durationBar;
+            int secondLineMark = durationBar - 10;
             durationBar -= durationTextView.MeasuredWidth;
             layoutView (durationTextView, durationBar, currentTop, durationTextView.MeasuredWidth, durationTextView.MeasuredHeight);
 
@@ -102,7 +102,7 @@ namespace Toggl.Joey.UI.Views
                 layoutView (tagsIcon, durationBar, currentTop, tagsIcon.MeasuredWidth, tagsIcon.MeasuredHeight);
             }
 
-            durationBar -= 15;
+            durationBar -= 10;
             int usableWidthFirstLine = durationBar - paddingLeft;
             int firstWidth = getFirstElementWidth (usableWidthFirstLine, projectTextView.MeasuredWidth);
 
@@ -112,7 +112,6 @@ namespace Toggl.Joey.UI.Views
             }
             layoutView (faderFirstRow, usableWidthFirstLine + paddingLeft - faderFirstRow.MeasuredWidth, currentTop, faderFirstRow.MeasuredWidth, faderFirstRow.MeasuredHeight);
 
-            secondLineMark -= 15;
             int usableWidthSecondLine = secondLineMark - paddingLeft;
 
             if (taskTextView.Text != String.Empty) {
