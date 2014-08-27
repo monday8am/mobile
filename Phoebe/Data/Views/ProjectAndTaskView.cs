@@ -32,6 +32,15 @@ namespace Toggl.Phoebe.Data.Views
             }
         }
 
+        public void Search (String filter)
+        {
+            foreach (var item in workspaceWrappers) {
+                foreach (Project project in item.Projects) {
+                    Console.WriteLine ("item: {0}", project.Tasks);
+                }
+            }
+        }
+
         private void OnDataChange (DataChangeMessage msg)
         {
             if (msg.Data is UserData) {

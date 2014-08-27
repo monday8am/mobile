@@ -19,6 +19,7 @@ namespace Toggl.Joey.UI.Adapters
         protected static readonly int ViewTypeProject = ViewTypeContent + 2;
         protected static readonly int ViewTypeNewProject = ViewTypeContent + 3;
         protected static readonly int ViewTypeTask = ViewTypeContent + 4;
+        protected static readonly int ViewTypeSearch = ViewTypeContent + 5;
         private readonly ExpandableProjectsView dataView;
 
         public ProjectsAdapter () : this (new ExpandableProjectsView ())
@@ -31,13 +32,22 @@ namespace Toggl.Joey.UI.Adapters
         }
 
         public override int ViewTypeCount {
-            get { return base.ViewTypeCount + 4; }
+            get { return base.ViewTypeCount + 5; }
+        }
+
+        public void Search (String s)
+        {
+            Console.WriteLine ("Searching...");
+            this.dataView.FilterProjects (s);
         }
 
         public override int GetItemViewType (int position)
         {
             if (position == DataView.Count && DataView.IsLoading)
                 return ViewTypeLoaderPlaceholder;
+
+            if (position == 0)
+                return ViewTypeSearch;
 
             if (position < 0 || position >= DataView.Count)
                 throw new ArgumentOutOfRangeException ("position");
@@ -76,6 +86,14 @@ namespace Toggl.Joey.UI.Adapters
 
                 var holder = (WorkspaceListItemHolder)view.Tag;
                 holder.Bind ((ProjectAndTaskView.Workspace)item);
+            } else if (viewType == ViewTypeSearch) {
+                if (view == null) {
+                    view = LayoutInflater.FromContext (parent.Context).Inflate (
+                        Resource.Layout.ProjectListSearchItem, parent, false);
+                    view.Tag = new ProjectSearchListItemHolder (view);
+                    EditText searchEdit = view.FindViewById<EditText> (Resource.Id.ProjectSearchEditText);
+                    searchEdit.AfterTextChanged += (sender, e) => Search ("t");
+                }
             } else if (viewType == ViewTypeProject) {
                 if (view == null) {
                     view = LayoutInflater.FromContext (parent.Context).Inflate (
@@ -382,6 +400,20 @@ namespace Toggl.Joey.UI.Adapters
             }
         }
 
+        private class ProjectSearchListItemHolder : BindableViewHolder<ProjectAndTaskView.Project>
+        {
+            public EditText SearchProjectEditText { get; private set; }
+
+            public ProjectSearchListItemHolder (View root) : base (root)
+            {
+                SearchProjectEditText = root.FindViewById<EditText> (Resource.Id.ProjectSearchEditText).SetFont (Font.Roboto);
+            }
+
+            protected override void Rebind ()
+            {
+            }
+        }
+
         #endregion
 
         class ExpandableProjectsView : IDataView<object>, IDisposable
@@ -443,6 +475,11 @@ namespace Toggl.Joey.UI.Adapters
             {
                 if (dataView != null)
                     dataView.LoadMore ();
+            }
+
+            public void FilterProjects (String filter)
+            {
+                dataView.Search (filter);
             }
 
             public IEnumerable<object> Data {
