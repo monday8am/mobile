@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Toggl.Phoebe.Data.DataObjects;
 using XPlatUtils;
+using System.Diagnostics;
 
 namespace Toggl.Phoebe.Data.Models
 {

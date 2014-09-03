@@ -95,4 +95,13 @@ namespace Toggl.Phoebe.Data
             get { return new Duration (); }
         }
     }
+
+    public enum DurationFormat
+    {
+        Classic,
+        Improved,
+        Decimal
+    }
+
+
 }
