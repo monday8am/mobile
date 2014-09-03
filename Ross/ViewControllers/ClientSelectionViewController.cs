@@ -31,6 +31,10 @@ namespace Toggl.Ross.ViewControllers
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
             new Source (this).Attach ();
+
+            NavigationItem.RightBarButtonItem = new UIBarButtonItem (
+                "ClientNewClient".Tr (), UIBarButtonItemStyle.Plain, OnNavigationBarAddClicked)
+                .Apply (Style.NavLabelButton);
         }
 
         public override void ViewDidAppear (bool animated)
@@ -40,6 +44,22 @@ namespace Toggl.Ross.ViewControllers
             var tracker = ServiceContainer.Resolve<IGAITracker> ();
             tracker.Set (GAIConstants.ScreenName, "Client Selection View");
             tracker.Send (GAIDictionaryBuilder.CreateAppView ().Build ());
+        }
+
+        private void OnNavigationBarAddClicked (object sender, EventArgs e)
+        {
+            // Show create client screen
+            var next = new NewClientViewController (workspace) {
+                ClientCreated = (c) => this.Finish (client: c),
+            };
+            this.NavigationController.PushViewController (next, true);
+        }
+
+        private void Finish (ClientModel client = null)
+        {
+            if (client != null && ClientSelected != null) {
+                ClientSelected (client);
+            }
         }
 
         public Action<ClientModel> ClientSelected { get; set; }

@@ -301,7 +301,7 @@ namespace Toggl.Phoebe.Net
         private static async Task<IEnumerable<CommonData>> GetAllDirtyData ()
         {
             return Enumerable.Empty<CommonData> ()
-                .Concat (await GetDirtyData<WorkspaceData> ().ConfigureAwait (false))
+                .Concat (await GetDirtyData <WorkspaceData> ().ConfigureAwait (false))
                 .Concat (await GetDirtyData<WorkspaceUserData> ().ConfigureAwait (false))
                 .Concat (await GetDirtyData<TagData> ().ConfigureAwait (false))
                 .Concat (await GetDirtyData<ClientData> ().ConfigureAwait (false))

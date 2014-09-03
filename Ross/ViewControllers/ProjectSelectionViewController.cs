@@ -12,6 +12,7 @@ using XPlatUtils;
 using Toggl.Ross.DataSources;
 using Toggl.Ross.Theme;
 using Toggl.Ross.Views;
+using System.Linq;
 
 namespace Toggl.Ross.ViewControllers
 {
@@ -23,7 +24,6 @@ namespace Toggl.Ross.ViewControllers
         public ProjectSelectionViewController (TimeEntryModel model) : base (UITableViewStyle.Plain)
         {
             this.model = model;
-
             Title = "ProjectTitle".Tr ();
         }
 
@@ -34,6 +34,10 @@ namespace Toggl.Ross.ViewControllers
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
             new Source (this).Attach ();
+
+            NavigationItem.RightBarButtonItem = new UIBarButtonItem (
+                "ProjectNewProject".Tr (), UIBarButtonItemStyle.Plain, OnNavigationBarAddClicked)
+                .Apply (Style.NavLabelButton);
         }
 
         public override void ViewDidAppear (bool animated)
@@ -73,6 +77,24 @@ namespace Toggl.Ross.ViewControllers
                     NavigationController.PopToViewController (vc [i], true);
                 }
             }
+        }
+
+        private void OnNavigationBarAddClicked (object sender, EventArgs e)
+        {
+            // Show create project dialog 
+            var source = (PlainDataViewSource<object>)TableView.Source;
+            int color = 0;
+            foreach (var item in source.DataView.Data)
+                if (item is ProjectAndTaskView.Project) {
+                    ProjectAndTaskView.Project p = (ProjectAndTaskView.Project)item;
+                    if (p.IsNewProject)
+                        color = p.Data.Color;
+                }
+
+            var next = new NewProjectViewController (model.Workspace, color) {
+                ProjectCreated = (p) => this.Finish (project: p),
+            };
+            this.NavigationController.PushViewController (next, true);
         }
 
         class Source : PlainDataViewSource<object>
@@ -198,12 +220,9 @@ namespace Toggl.Ross.ViewControllers
                     if (wrap.IsNoProject) {
                         controller.Finish (workspace: new WorkspaceModel (wrap.WorkspaceId));
                     } else if (wrap.IsNewProject) {
-                        var proj = (ProjectModel)wrap.Data;
-                        // Show create project dialog instead
-                        var next = new NewProjectViewController (proj.Workspace, proj.Color) {
-                            ProjectCreated = (p) => controller.Finish (project: p),
-                        };
-                        controller.NavigationController.PushViewController (next, true);
+                        /*
+                        
+                        */
                     } else {
                         controller.Finish (project: (ProjectModel)wrap.Data);
                     }
@@ -395,12 +414,12 @@ namespace Toggl.Ross.ViewControllers
                     projectName = "ProjectNoProject".Tr ();
                     projectLabel.Apply (Style.ProjectList.NoProjectLabel);
                 } else if (DataSource.IsNewProject) {
+                    this.Hidden = true;
                     projectColor = Color.LightestGray;
                     projectName = "ProjectNewProject".Tr ();
                     projectLabel.Apply (Style.ProjectList.NewProjectLabel);
                 } else if (model != null) {
                     projectColor = UIColor.Clear.FromHex (model.GetHexColor ());
-
                     projectName = model.Name;
                     clientName = model.Client != null ? model.Client.Name : String.Empty;
                     taskCount = DataSource.Tasks.Count;
